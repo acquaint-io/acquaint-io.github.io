@@ -5,7 +5,7 @@
 
 const changed = require('gulp-changed');
 const del = require('del');
-const ghpages = require('gulp-gh-pages');
+const pages = require('gulp-gh-pages');
 const gulp = require('gulp');
 const pug = require('gulp-pug');
 const sequence = require('run-sequence');
@@ -14,7 +14,6 @@ const sequence = require('run-sequence');
  * Paths
  * -----------------------------------------------------------------------------
  */
-
 
 const path = {
   src: 'src',
@@ -26,9 +25,19 @@ const path = {
  * -----------------------------------------------------------------------------
  */
 
-
 gulp.task('default', (callback) => sequence(
   [ 'build' ],
+  callback
+));
+
+/**
+ * Deploy
+ * -----------------------------------------------------------------------------
+ */
+
+gulp.task('deploy', (callback) => sequence(
+  [ 'build' ],
+  [ 'gh-pages' ],
   callback
 ));
 
@@ -36,7 +45,6 @@ gulp.task('default', (callback) => sequence(
  * Build
  * -----------------------------------------------------------------------------
  */
-
 
 gulp.task('build', (callback) => sequence(
   [ 'clean' ],
@@ -49,7 +57,6 @@ gulp.task('build', (callback) => sequence(
  * Wipe build
  * -----------------------------------------------------------------------------
  */
-
 
 gulp.task('clean', () => del(`./${path.build}`));
 
@@ -79,13 +86,13 @@ gulp.task('views', () => gulp
 );
 
 /**
- * Deploy
+ * GitHub Pages
  * -----------------------------------------------------------------------------
  */
 
-gulp.task('deploy', () => gulp
+gulp.task('gh-pages', () => gulp
   .src(`${path.build}/**/*`)
-  .ghpages({
+  .pipe(pages({
     branch: 'master',
-  })
+  }))
 );
