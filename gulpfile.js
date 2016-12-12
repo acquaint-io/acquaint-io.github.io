@@ -8,6 +8,7 @@ const bs = require('browser-sync');
 const changed = require('gulp-changed');
 const del = require('del');
 const gulp = require('gulp');
+const include = require('gulp-include');
 const minimist = require('minimist');
 const nano = require('gulp-cssnano');
 const pages = require('gulp-gh-pages');
@@ -70,6 +71,7 @@ gulp.task('build', (callback) => sequence(
   [ 'clean' ],
   [ 'misc' ],
   [ 'styles' ],
+  [ 'vendors' ],
   [ 'views' ],
   callback
 ));
@@ -143,6 +145,25 @@ gulp.task('styles', () => gulp
   }))
   // Save minified build files
   .pipe(gulp.dest(`${path.build}/styles`))
+);
+
+/**
+ * Vendors
+ * -----------------------------------------------------------------------------
+ */
+
+gulp.task('vendors', () => gulp
+  // Select source files
+  .src(`${path.src}/vendors/*.js`)
+  // Concatenate includes
+  .pipe(include({
+    includePaths: [
+      `${__dirname}/bower_components`,
+      `${__dirname}/node_modules`,
+    ],
+  }))
+  // Save build files
+  .pipe(gulp.dest(`${path.build}/vendors`))
 );
 
 /**
