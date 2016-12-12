@@ -1,5 +1,6 @@
 # App ignores
 build
+.publish
 
 # Created by https://www.gitignore.io/api/sass,osx,windows,linux,node,bower
 
