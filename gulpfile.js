@@ -4,9 +4,11 @@
  */
 
 const autoprefixer = require('autoprefixer');
+const babel = require('gulp-babel');
 const bs = require('browser-sync');
 const changed = require('gulp-changed');
 const del = require('del');
+const eslint = require('gulp-eslint');
 const gulp = require('gulp');
 const include = require('gulp-include');
 const minimist = require('minimist');
@@ -17,6 +19,7 @@ const pug = require('gulp-pug');
 const rename = require('gulp-rename');
 const sass = require('gulp-sass');
 const sequence = require('run-sequence');
+const uglify = require('gulp-uglify');
 
 /**
  * Paths
@@ -70,6 +73,7 @@ gulp.task('deploy', (callback) => sequence(
 gulp.task('build', (callback) => sequence(
   [ 'clean' ],
   [ 'misc' ],
+  [ 'scripts' ],
   [ 'styles' ],
   [ 'vendors' ],
   [ 'views' ],
@@ -92,6 +96,7 @@ gulp.task('server', () => {
   });
   // Watch for file changes and run corresponding tasks
   gulp.watch(`./${path.src}/misc/**/*`, [ 'misc' ]);
+  gulp.watch(`./${path.src}/scripts/**/*.js`, [ 'scripts' ]);
   gulp.watch(`./${path.src}/styles/**/*`, [ 'styles' ]);
   gulp.watch(`./${path.src}/views/**/*`, [ 'views' ]);
   // Watch build changes and reload browser
@@ -120,6 +125,47 @@ gulp.task('misc', () => gulp
 );
 
 /**
+ * Scripts
+ * -----------------------------------------------------------------------------
+ */
+
+gulp.task('scripts', [ 'scripts-lint' ], () => gulp
+  // Select source files
+  .src(`${path.src}/scripts/*.js`)
+  // Concatenate includes
+  .pipe(include())
+  // Transpile ES6
+  .pipe(babel())
+  // Save unminified build file
+  .pipe(gulp.dest(`${path.build}/scripts`))
+  // Optimize and minify
+  .pipe(uglify())
+  // Append file suffix
+  .pipe(rename({
+    suffix: '.min',
+  }))
+  // Save minified build file
+  .pipe(gulp.dest(`${path.build}/scripts`))
+);
+
+/**
+ * Lint scripts
+ * -----------------------------------------------------------------------------
+ */
+
+gulp.task('scripts-lint', () => gulp
+  // Select source files
+  .src([
+    `${path.src}/scripts/**/*.js`,
+    `!${path.src}/scripts/global.js`,
+  ])
+  // Check for errors
+  .pipe(eslint())
+  // Format errors
+  .pipe(eslint.format())
+);
+
+/**
  * Styles
  * -----------------------------------------------------------------------------
  */
@@ -139,7 +185,7 @@ gulp.task('styles', () => gulp
   .pipe(gulp.dest(`${path.build}/styles`))
   // Optimize and minify
   .pipe(nano())
-  // Rename file
+  // Append file suffix
   .pipe(rename({
     suffix: '.min',
   }))
