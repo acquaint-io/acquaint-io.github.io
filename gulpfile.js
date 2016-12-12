@@ -3,13 +3,18 @@
  * -----------------------------------------------------------------------------
  */
 
+const autoprefixer = require('autoprefixer');
 const bs = require('browser-sync');
 const changed = require('gulp-changed');
 const del = require('del');
-const minimist = require('minimist');
-const pages = require('gulp-gh-pages');
 const gulp = require('gulp');
+const minimist = require('minimist');
+const nano = require('gulp-cssnano');
+const pages = require('gulp-gh-pages');
+const postcss = require('gulp-postcss');
 const pug = require('gulp-pug');
+const rename = require('gulp-rename');
+const sass = require('gulp-sass');
 const sequence = require('run-sequence');
 
 /**
@@ -64,6 +69,7 @@ gulp.task('deploy', (callback) => sequence(
 gulp.task('build', (callback) => sequence(
   [ 'clean' ],
   [ 'misc' ],
+  [ 'styles' ],
   [ 'views' ],
   callback
 ));
@@ -84,6 +90,7 @@ gulp.task('server', () => {
   });
   // Watch for file changes and run corresponding tasks
   gulp.watch(`./${path.src}/misc/**/*`, [ 'misc' ]);
+  gulp.watch(`./${path.src}/styles/**/*`, [ 'styles' ]);
   gulp.watch(`./${path.src}/views/**/*`, [ 'views' ]);
   // Watch build changes and reload browser
   bs.watch(`${path.build}/**/*`).on('change', bs.reload);
@@ -108,6 +115,34 @@ gulp.task('misc', () => gulp
   .pipe(changed(path.build))
   // Save build files
   .pipe(gulp.dest(path.build))
+);
+
+/**
+ * Styles
+ * -----------------------------------------------------------------------------
+ */
+
+gulp.task('styles', () => gulp
+  // Select source files
+  .src(`${path.src}/styles/*.scss`)
+  // Compile Sass to CSS
+  .pipe(sass({
+    outputStyle: 'expanded',
+  }))
+  // Add vendor prefixes
+  .pipe(postcss([
+    require('autoprefixer'),
+  ]))
+  // Save unminified build files
+  .pipe(gulp.dest(`${path.build}/styles`))
+  // Optimize and minify
+  .pipe(nano())
+  // Rename file
+  .pipe(rename({
+    suffix: '.min',
+  }))
+  // Save minified build files
+  .pipe(gulp.dest(`${path.build}/styles`))
 );
 
 /**
