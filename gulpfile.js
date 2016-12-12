@@ -226,7 +226,7 @@ gulp.task('views', () => gulp
   }))
   // Compile Pug to HTML
   .pipe(pug({
-    basedir: `${__dirname}/src/views`,
+    basedir: `${__dirname}/${path.src}/views`,
     pretty: (options.env === 'dev') ? true : false,
     data: {
       env: options.env,
