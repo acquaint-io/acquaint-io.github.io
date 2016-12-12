@@ -4,11 +4,13 @@
   "description": "Acquaint.io website",
   "repository": "git@github.com:acquaint-io/acquaint-io.github.io.git",
   "devDependencies": {
+    "browser-sync": "^2.18.5",
     "del": "^2.2.2",
     "gulp": "^3.9.1",
     "gulp-changed": "^1.3.2",
     "gulp-gh-pages": "^0.5.4",
     "gulp-pug": "^3.2.0",
+    "minimist": "^1.2.0",
     "run-sequence": "^1.2.2"
   }
 }
