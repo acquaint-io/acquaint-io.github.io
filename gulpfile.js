@@ -72,6 +72,7 @@ gulp.task('deploy', (callback) => sequence(
 
 gulp.task('build', (callback) => sequence(
   [ 'clean' ],
+  [ 'images' ],
   [ 'misc' ],
   [ 'scripts' ],
   [ 'styles' ],
@@ -95,6 +96,7 @@ gulp.task('server', () => {
     ui: false,
   });
   // Watch for file changes and run corresponding tasks
+  gulp.watch(`./${path.src}/images/**/*`, [ 'images' ]);
   gulp.watch(`./${path.src}/misc/**/*`, [ 'misc' ]);
   gulp.watch(`./${path.src}/scripts/**/*.js`, [ 'scripts' ]);
   gulp.watch(`./${path.src}/styles/**/*`, [ 'styles' ]);
@@ -109,6 +111,20 @@ gulp.task('server', () => {
  */
 
 gulp.task('clean', () => del(`./${path.build}`));
+
+/**
+ * Images
+ * -----------------------------------------------------------------------------
+ */
+
+gulp.task('images', () => gulp
+// Select source files
+  .src(`${path.src}/images/**/*`)
+  // Check which files have changed
+  .pipe(changed(path.build))
+  // Save build files
+  .pipe(gulp.dest(`${path.build}/images`))
+);
 
 /**
  * Miscellaneous
